@@ -1,1 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JobBot — AI Healthcare Startup Jobs</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dk: #1d4ed8;
+      --primary-lt: #dbeafe;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-hover: 0 4px 16px rgba(0,0,0,.12);
+    }
 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    }
+    .header-brand { display: flex; align-items: center; gap: .75rem; }
+    .header-icon {
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,.15);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+    }
+    .header h1 { font-size: 1.375rem; font-weight: 800; letter-spacing: -.01em; }
+    .header-sub { font-size: .75rem; opacity: .8; margin-top: .125rem; }
+    .header-status { text-align: right; font-size: .75rem; opacity: .85; line-height: 1.5; }
+
+    /* ── Layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      gap: 1.5rem;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── Sidebar ── */
+    .sidebar { position: sticky; top: 1.5rem; height: fit-content; display: flex; flex-direction: column; gap: 1rem; }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+    }
+    .panel-title {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .form-group { margin-bottom: .875rem; }
+    .form-label {
+      display: block;
+      font-size: .8125rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: .375rem;
+    }
+    .form-input {
+      width: 100%;
+      padding: .5rem .75rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: .875rem;
+      background: #f8fafc;
+      color: var(--text);
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+      background: #fff;
+    }
+
+    .check-group, .radio-group { display: flex; flex-direction: column; gap: .4rem; }
+    .check-item, .radio-item {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .8125rem; cursor: pointer;
+    }
+    .check-item input, .radio-item input { accent-color: var(--primary); width: 15px; height: 15px; }
+
+    .search-btn {
+      width: 100%;
+      padding: .75rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      transition: background .15s, transform .1s;
+      margin-top: .25rem;
+    }
+    .search-btn:hover:not(:disabled) { background: var(--primary-dk); }
+    .search-btn:active:not(:disabled) { transform: scale(.98); }
+    .search-btn:disabled { opacity: .65; cursor: not-allowed; }
+
+    /* ── Tabs ── */
+    .tabs-bar {
+      display: flex;
+      gap: .25rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .3rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: .5rem .75rem;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      font-size: .8125rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: .375rem;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .tab-btn.active { background: var(--primary); color: #fff; }
+    .tab-badge {
+      padding: .1rem .4rem;
+      border-radius: 999px;
+      font-size: .7rem;
+      font-weight: 700;
+      background: rgba(0,0,0,.1);
+    }
+    .tab-btn.active .tab-badge { background: rgba(255,255,255,.25); }
+
+    /* ── Results header ── */
+    .results-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .results-count { font-size: .8125rem; color: var(--muted); font-weight: 500; }
+    .sort-select {
+      padding: .375rem .625rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: .8125rem;
+      background: var(--card);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    /* ── Job grid ── */
+    .job-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1rem;
+    }
+    @media (max-width: 1100px) {
+      .job-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Job card ── */
+    .job-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      box-shadow: var(--shadow);
+      transition: box-shadow .15s, border-color .15s, transform .15s;
+    }
+    .job-card:hover {
+      box-shadow: var(--shadow-hover);
+      border-color: #bfdbfe;
+      transform: translateY(-1px);
+    }
+
+    .card-top { display: flex; gap: .75rem; align-items: flex-start; }
+    .avatar {
+      width: 46px; height: 46px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; font-weight: 800; color: #fff;
+      flex-shrink: 0;
+      letter-spacing: -.02em;
+    }
+    .card-title-area { flex: 1; min-width: 0; }
+    .card-company {
+      font-size: .75rem; color: var(--muted); font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .card-title {
+      font-size: 1rem; font-weight: 700; color: var(--text);
+      line-height: 1.25; margin-top: .1rem;
+    }
+
+    .card-meta {
+      display: flex; flex-wrap: wrap; gap: .5rem;
+      font-size: .775rem; color: var(--muted);
+    }
+    .meta-item { display: flex; align-items: center; gap: .25rem; }
+    .meta-icon { font-size: .65rem; }
+
+    .badges { display: flex; flex-wrap: wrap; gap: .375rem; }
+    .badge {
+      padding: .2rem .55rem;
+      border-radius: 999px;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .01em;
+    }
+    .b-phd-req    { background: #fee2e2; color: #991b1b; }
+    .b-phd-pref   { background: #fef3c7; color: #92400e; }
+    .b-no-phd     { background: #dcfce7; color: #166534; }
+    .b-stage      { background: #f3e8ff; color: #6b21a8; }
+    .b-remote     { background: #e0f2fe; color: #0369a1; }
+    .b-hybrid     { background: #fef9c3; color: #854d0e; }
+
+    .skills { display: flex; flex-wrap: wrap; gap: .3rem; }
+    .skill {
+      background: #f1f5f9;
+      color: #475569;
+      padding: .2rem .5rem;
+      border-radius: 6px;
+      font-size: .7rem;
+      font-weight: 500;
+    }
+
+    .view-btn {
+      display: block;
+      text-align: center;
+      padding: .6rem;
+      border: 1.5px solid var(--primary);
+      border-radius: 8px;
+      color: var(--primary);
+      font-size: .8125rem;
+      font-weight: 700;
+      text-decoration: none;
+      margin-top: auto;
+      transition: all .15s;
+    }
+    .view-btn:hover { background: var(--primary); color: #fff; }
+
+    /* ── States ── */
+    .state-box {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--muted);
+      box-shadow: var(--shadow);
+    }
+    .state-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .state-title { font-weight: 700; font-size: 1rem; color: var(--text); margin-bottom: .5rem; }
+    .state-sub { font-size: .875rem; }
+
+    .loading-dots span {
+      display: inline-block;
+      animation: bounce .8s infinite;
+      font-size: 2rem;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: .15s; }
+    .loading-dots span:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-8px); }
+    }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-bar {
+      background: #fef2f2;
+      border: 1.5px solid #fca5a5;
+      color: #991b1b;
+      padding: .875rem 1rem;
+      border-radius: 8px;
+      font-size: .8125rem;
+      margin-bottom: 1rem;
+    }
+
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: #0f172a; color: #fff;
+      padding: .75rem 1.25rem;
+      border-radius: 10px;
+      font-size: .8125rem; font-weight: 600;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,.25);
+      animation: slideup .25s ease;
+    }
+    @keyframes slideup {
+      from { transform: translateY(12px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+
+    .api-warn {
+      background: #fffbeb;
+      border: 1.5px solid #fcd34d;
+      color: #92400e;
+      padding: .875rem 1rem;
+      border-radius: 8px;
+      font-size: .8125rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-brand">
+    <div class="header-icon">🤖</div>
+    <div>
+      <h1>JobBot</h1>
+      <div class="header-sub">AI Healthcare Startup Job Search</div>
+    </div>
+  </div>
+  <div class="header-status" id="header-status">Set preferences → Search Jobs</div>
+</header>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="panel">
+      <div class="panel-title">🔧 Search Preferences</div>
+
+      <div class="form-group">
+        <label class="form-label" for="inp-location">Location</label>
+        <input id="inp-location" class="form-input" type="text"
+               placeholder="e.g. San Francisco, New York, United States"
+               value="United States">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Seniority</label>
+        <div class="check-group">
+          <label class="check-item"><input type="checkbox" name="seniority" value="entry-level"> Entry-Level</label>
+          <label class="check-item"><input type="checkbox" name="seniority" value="mid-level" checked> Mid-Level</label>
+          <label class="check-item"><input type="checkbox" name="seniority" value="senior" checked> Senior</label>
+          <label class="check-item"><input type="checkbox" name="seniority" value="lead"> Lead / Principal</label>
+          <label class="check-item"><input type="checkbox" name="seniority" value="director"> Director / VP</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Work Arrangement</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="remote" value="any" checked> Any</label>
+          <label class="radio-item"><input type="radio" name="remote" value="remote"> Remote Only</label>
+          <label class="radio-item"><input type="radio" name="remote" value="hybrid"> Hybrid</label>
+          <label class="radio-item"><input type="radio" name="remote" value="onsite"> On-site Only</label>
+        </div>
+      </div>
+
+      <button class="search-btn" id="search-btn" onclick="doSearch()">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        Search Jobs
+      </button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">ℹ️ About</div>
+      <p style="font-size:.8125rem;color:var(--muted);line-height:1.65">
+        Searches multiple job boards for AI/ML roles at early-to-mid stage healthcare startups.
+        Filters for LLMs, agentic AI, clinical NLP, and data science positions.
+        Claude AI classifies every listing for relevance.
+      </p>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main>
+    <div id="api-warn" class="api-warn">
+      ⚠️ <strong>API keys not configured.</strong>
+      Edit <code>.env</code> with your <code>SERPER_API_KEY</code> and <code>ANTHROPIC_API_KEY</code>, then restart.
+    </div>
+    <div id="error-area"></div>
+
+    <!-- Tabs -->
+    <div class="tabs-bar">
+      <button class="tab-btn active" data-tab="all">
+        All Jobs <span class="tab-badge" id="cnt-all">0</span>
+      </button>
+      <button class="tab-btn" data-tab="nophd">
+        ✅ No PhD Needed <span class="tab-badge" id="cnt-nophd">0</span>
+      </button>
+      <button class="tab-btn" data-tab="phd">
+        🎓 PhD Required/Preferred <span class="tab-badge" id="cnt-phd">0</span>
+      </button>
+    </div>
+
+    <div class="results-row">
+      <div class="results-count" id="results-count">No results yet — click Search Jobs</div>
+      <select class="sort-select" id="sort-sel" onchange="render()">
+        <option value="date">Newest first</option>
+        <option value="company">Company A–Z</option>
+        <option value="title">Title A–Z</option>
+      </select>
+    </div>
+
+    <div id="job-area">
+      <div class="state-box">
+        <div class="state-icon">🔍</div>
+        <div class="state-title">Ready to search</div>
+        <div class="state-sub">Set your location and preferences, then click Search Jobs</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──────────────────────────────────────────────────
+let allJobs = [];
+let activeTab = 'all';
+
+// ── Palette ────────────────────────────────────────────────
+const COLORS = [
+  '#2563eb','#7c3aed','#db2777','#dc2626','#d97706',
+  '#059669','#0891b2','#0d9488','#4f46e5','#be185d'
+];
+function companyColor(name) {
+  let h = 0;
+  for (const c of String(name)) h = (h * 31 + c.charCodeAt(0)) | 0;
+  return COLORS[Math.abs(h) % COLORS.length];
+}
+
+// ── Tab wiring ─────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeTab = btn.dataset.tab;
+    render();
+  });
+});
+
+// ── Filter logic ───────────────────────────────────────────
+function getFiltered() {
+  if (activeTab === 'phd')  return allJobs.filter(j => j.requires_phd || j.phd_preferred);
+  if (activeTab === 'nophd') return allJobs.filter(j => !j.requires_phd && !j.phd_preferred);
+  return allJobs;
+}
+
+// ── Render ─────────────────────────────────────────────────
+function render() {
+  const jobs = [...getFiltered()];
+  const sort = document.getElementById('sort-sel').value;
+  if (sort === 'company') jobs.sort((a,b) => (a.company||'').localeCompare(b.company||''));
+  if (sort === 'title')   jobs.sort((a,b) => (a.title||'').localeCompare(b.title||''));
+
+  // Badge counts
+  document.getElementById('cnt-all').textContent   = allJobs.length;
+  document.getElementById('cnt-phd').textContent   = allJobs.filter(j => j.requires_phd||j.phd_preferred).length;
+  document.getElementById('cnt-nophd').textContent = allJobs.filter(j => !j.requires_phd&&!j.phd_preferred).length;
+
+  const label = {all:'job', nophd:'job without PhD requirement', phd:'PhD-gated job'}[activeTab];
+  document.getElementById('results-count').textContent =
+    jobs.length === 0 ? 'No results for this filter'
+      : `${jobs.length} ${label}${jobs.length !== 1 ? 's' : ''} found`;
+
+  const area = document.getElementById('job-area');
+  if (!jobs.length) {
+    area.innerHTML = `
+      <div class="state-box">
+        <div class="state-icon">📭</div>
+        <div class="state-title">No results in this tab</div>
+        <div class="state-sub">Try a different filter or search with different preferences</div>
+      </div>`;
+    return;
+  }
+
+  area.innerHTML = `<div class="job-grid">${jobs.map(cardHTML).join('')}</div>`;
+}
+
+// ── Card HTML ──────────────────────────────────────────────
+function cardHTML(j) {
+  const company = j.company || 'Unknown Company';
+  const initials = company.split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase() || '?';
+  const color = companyColor(company);
+
+  // Skills
+  const skills = (j.skills||'').split(',').map(s=>s.trim()).filter(Boolean);
+  const skillHtml = skills.slice(0,8).map(s=>`<span class="skill">${esc(s)}</span>`).join('');
+
+  // PhD badge
+  let phdBadge = '';
+  if (j.requires_phd)      phdBadge = `<span class="badge b-phd-req">PhD Required</span>`;
+  else if (j.phd_preferred) phdBadge = `<span class="badge b-phd-pref">PhD Preferred</span>`;
+  else                      phdBadge = `<span class="badge b-no-phd">No PhD</span>`;
+
+  // Stage badge
+  const stageBadge = j.company_stage && j.company_stage !== 'unknown'
+    ? `<span class="badge b-stage">${esc(j.company_stage)}</span>` : '';
+
+  // Remote badge
+  let remBadge = '';
+  const loc = (j.location||'').toLowerCase();
+  if (j.remote || loc.includes('remote'))       remBadge = `<span class="badge b-remote">Remote</span>`;
+  else if (loc.includes('hybrid'))              remBadge = `<span class="badge b-hybrid">Hybrid</span>`;
+
+  const url = j.url || '#';
+  const posted = j.posted_date || 'Recently';
+  const location = j.location || 'Location TBD';
+
+  return `
+<div class="job-card">
+  <div class="card-top">
+    <div class="avatar" style="background:${color}">${initials}</div>
+    <div class="card-title-area">
+      <div class="card-company">${esc(company)}</div>
+      <div class="card-title">${esc(j.title||'Untitled Role')}</div>
+    </div>
+  </div>
+
+  <div class="card-meta">
+    <span class="meta-item">
+      <svg class="meta-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      ${esc(location)}
+    </span>
+    <span class="meta-item">
+      <svg class="meta-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      ${esc(posted)}
+    </span>
+  </div>
+
+  <div class="badges">${phdBadge}${stageBadge}${remBadge}</div>
+
+  ${skillHtml ? `<div class="skills">${skillHtml}</div>` : ''}
+
+  <a href="${esc(url)}" target="_blank" rel="noopener noreferrer" class="view-btn">
+    View Job Posting →
+  </a>
+</div>`;
+}
+
+function esc(s) {
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Search ─────────────────────────────────────────────────
+async function doSearch() {
+  const btn = document.getElementById('search-btn');
+  const area = document.getElementById('job-area');
+  const errArea = document.getElementById('error-area');
+
+  const location = document.getElementById('inp-location').value.trim() || 'United States';
+  const seniority = [...document.querySelectorAll('input[name="seniority"]:checked')].map(e=>e.value);
+  const remote_preference = document.querySelector('input[name="remote"]:checked')?.value || 'any';
+
+  if (!seniority.length) { toast('Select at least one seniority level'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spinner"></div> Searching…`;
+  errArea.innerHTML = '';
+  area.innerHTML = `
+    <div class="state-box">
+      <div class="loading-dots"><span>●</span><span>●</span><span>●</span></div>
+      <div class="state-title" style="margin-top:1rem">Scanning job boards…</div>
+      <div class="state-sub">Claude is filtering AI healthcare startup roles<br>This usually takes 30–60 seconds</div>
+    </div>`;
+
+  try {
+    const res = await fetch('/api/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ location, seniority, remote_preference }),
+    });
+
+    if (!res.ok) {
+      const msg = await res.text();
+      throw new Error(msg || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    allJobs = data.jobs || [];
+
+    const now = new Date().toLocaleString('en-US', { dateStyle:'medium', timeStyle:'short' });
+    document.getElementById('header-status').innerHTML =
+      `Last searched: ${now}<br>${allJobs.length} AI healthcare jobs found`;
+
+    render();
+    toast(`Found ${allJobs.length} matching jobs`);
+
+  } catch (err) {
+    errArea.innerHTML = `
+      <div class="error-bar">
+        <strong>Search failed:</strong> ${esc(err.message)}<br>
+        Check that your <code>.env</code> has valid <code>SERPER_API_KEY</code> and <code>ANTHROPIC_API_KEY</code>.
+      </div>`;
+    area.innerHTML = `
+      <div class="state-box">
+        <div class="state-icon">⚠️</div>
+        <div class="state-title">Search failed</div>
+        <div class="state-sub">See the error above for details</div>
+      </div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      Search Jobs`;
+  }
+}
+
+// ── Toast ──────────────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.style.display = 'none', 3000);
+}
+
+// ── On load: check API key status ─────────────────────────
+(async () => {
+  try {
+    const r = await fetch('/api/status');
+    const s = await r.json();
+    if (!s.serper_key || !s.anthropic_key) {
+      document.getElementById('api-warn').style.display = 'block';
+    }
+  } catch {}
+})();
+</script>
+</body>
+</html>
