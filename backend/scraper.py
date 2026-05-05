@@ -55,11 +55,13 @@ class JobSearcher:
         ]
 
     async def _serper_jobs(self, client: httpx.AsyncClient, query: str, prefs) -> List[Dict]:
+        # Always search US only; use state as location bias when provided
+        location_bias = prefs.location if prefs.location != "All States (US)" else "United States"
         try:
             resp = await client.post(
                 self.SERPER_JOBS_URL,
                 headers={"X-API-KEY": self.serper_key, "Content-Type": "application/json"},
-                json={"q": query, "location": prefs.location, "gl": "us", "hl": "en", "num": 20},
+                json={"q": query, "location": location_bias, "gl": "us", "hl": "en", "num": 20},
             )
             resp.raise_for_status()
             return self._parse_jobs_response(resp.json())
