@@ -311,6 +311,68 @@ st.markdown("""
 <div class="orb orb-4"></div>
 """, unsafe_allow_html=True)
 
+# ── US States ────────────────────────────────────────────────────────────────
+US_STATES = [
+    "All States (US)", "Alabama", "Alaska", "Arizona", "Arkansas", "California",
+    "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii",
+    "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana",
+    "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi",
+    "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey",
+    "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma",
+    "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+    "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
+    "West Virginia", "Wisconsin", "Wyoming", "Washington DC",
+]
+STATE_ABBREVS = {
+    "Alabama":"AL","Alaska":"AK","Arizona":"AZ","Arkansas":"AR","California":"CA",
+    "Colorado":"CO","Connecticut":"CT","Delaware":"DE","Florida":"FL","Georgia":"GA",
+    "Hawaii":"HI","Idaho":"ID","Illinois":"IL","Indiana":"IN","Iowa":"IA","Kansas":"KS",
+    "Kentucky":"KY","Louisiana":"LA","Maine":"ME","Maryland":"MD","Massachusetts":"MA",
+    "Michigan":"MI","Minnesota":"MN","Mississippi":"MS","Missouri":"MO","Montana":"MT",
+    "Nebraska":"NE","Nevada":"NV","New Hampshire":"NH","New Jersey":"NJ","New Mexico":"NM",
+    "New York":"NY","North Carolina":"NC","North Dakota":"ND","Ohio":"OH","Oklahoma":"OK",
+    "Oregon":"OR","Pennsylvania":"PA","Rhode Island":"RI","South Carolina":"SC",
+    "South Dakota":"SD","Tennessee":"TN","Texas":"TX","Utah":"UT","Vermont":"VT",
+    "Virginia":"VA","Washington":"WA","West Virginia":"WV","Wisconsin":"WI",
+    "Wyoming":"WY","Washington DC":"DC",
+}
+FOREIGN_INDICATORS = {
+    "copenhagen","denmark","london","england","berlin","germany","paris","france",
+    "toronto","canada","amsterdam","netherlands","stockholm","sweden","sydney",
+    "australia","singapore","india","bangalore","mumbai","delhi","dubai","uae",
+    "ireland","dublin","barcelona","spain","rome","italy","tokyo","japan",
+    "beijing","shanghai","china","brazil","mexico","zürich","switzerland",
+    "oslo","norway","helsinki","finland","brussels","belgium",
+}
+
+def _is_us_location(loc: str) -> bool:
+    loc = (loc or "").lower()
+    if not loc or "remote" in loc or "anywhere" in loc:
+        return True
+    if "united states" in loc or ", us" in loc or " usa" in loc:
+        return True
+    words = loc.replace(",", " ").replace(".", " ").split()
+    if any(w.upper() in STATE_ABBREVS.values() for w in words):
+        return True
+    if any(fi in loc for fi in FOREIGN_INDICATORS):
+        return False
+    return True  # neutral/unknown — keep
+
+def filter_by_state(jobs, state: str):
+    if state == "All States (US)":
+        return [j for j in jobs if _is_us_location(j.get("location", ""))]
+    abbrev = STATE_ABBREVS.get(state, "").lower()
+    state_lower = state.lower()
+    def matches(loc):
+        loc = (loc or "").lower()
+        if not loc or "remote" in loc or "anywhere" in loc:
+            return True
+        return (state_lower in loc
+                or (abbrev and f", {abbrev}" in loc)
+                or (abbrev and f" {abbrev}" in loc)
+                or (abbrev and loc.endswith(f" {abbrev}")))
+    return [j for j in jobs if matches(j.get("location", ""))]
+
 # ── Session state ────────────────────────────────────────────────────────────
 if "jobs" not in st.session_state:
     st.session_state.jobs = []
@@ -320,7 +382,7 @@ if "searched" not in st.session_state:
 # ── Sidebar: preferences ─────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("### ⚡ SCAN SETTINGS")
-    location = st.text_input("Location", value="United States", placeholder="e.g. San Francisco, Remote")
+    location = st.selectbox("State", US_STATES, index=0)
     seniority = st.multiselect(
         "Seniority",
         ["entry-level", "mid-level", "senior", "lead", "director"],
@@ -405,7 +467,7 @@ with col_btn:
     scan_clicked = st.button("SCAN")
 
 # ── Filter chips ──────────────────────────────────────────────────────────────
-CHIP_OPTIONS = ["ALL", "REMOTE", "SEED", "SERIES A", "NLP/LLM", "IMAGING AI", "$200K+", "NO PhD"]
+CHIP_OPTIONS = ["ALL", "REMOTE", "SEED", "SERIES A", "NLP/LLM", "IMAGING AI", "$200K+", "NO PhD", "PhD ONLY"]
 try:
     selected_chips = st.pills(
         "Filter",
@@ -476,9 +538,12 @@ def apply_chips(jobs, chips):
         out = [j for j in out if "200" in (j.get("salary") or "") or "200k" in (j.get("description") or "").lower()]
     if "NO PhD" in chips:
         out = [j for j in out if not j.get("requires_phd") and not j.get("phd_preferred")]
+    if "PhD ONLY" in chips:
+        out = [j for j in out if j.get("requires_phd") or j.get("phd_preferred")]
     return out
 
 visible = apply_chips(st.session_state.jobs, selected_chips)
+visible = filter_by_state(visible, location)
 
 # ── Card renderer ─────────────────────────────────────────────────────────────
 def _esc(s):
